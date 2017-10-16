@@ -8,20 +8,52 @@ import java.util.*;
 
 public class Main {
 
-    public static int[][] matrix=new int[][]{
-            {3,1,0,2,3,2,2,3,1,0},
-            {0,1,2,1,2,3,2,0,1,3},
-            {3,0,2,1,1,1,1,1,1,3},
-            {0,2,2,1,0,3,1,1,3,2},
-            {0,2,3,0,0,1,1,0,1,2},
-            {0,3,2,3,3,2,1,0,1,0},
-            {2,0,0,3,0,2,2,0,1,2},
-            {2,2,0,2,2,0,0,0,2,1},
-            {0,1,3,0,0,0,0,0,2,0},
-            {2,2,0,0,0,2,2,2,3,1}
-    };
-
+    //Common global variables
+    public static int[][] matrix;
+    public static int maxRow=-1,maxCol=-1,maxScore=-1,n;
     public static Queue<Pair<Integer,Integer>> queue=new LinkedList<>();
+
+    //File variables and reading
+    public static String Filename="input";
+    public static void readMatrixFile() {
+        // The name of the file to open.
+        String fileName = Filename;
+        String line = null;
+
+        try {
+
+            File fileobj=new File("./"+fileName);
+            FileReader fileReader = new FileReader(fileobj);
+
+            // Always wrap FileReader in BufferedReader.
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            int row=0;
+
+            n=Integer.parseInt(bufferedReader.readLine());
+            matrix=new int[n][n];
+            while((line = bufferedReader.readLine()) != null) {
+
+                String[] matrixLine=line.split("");
+
+                for(int col=0;col<matrixLine.length;col++)
+                {
+                    if(matrixLine[col].equals("*"))
+                        matrix[row][col]=-1;
+                    else
+                        matrix[row][col]=Integer.parseInt(matrixLine[col]);
+                }
+                row++;
+            }
+            bufferedReader.close();
+        }
+        catch(FileNotFoundException ex) {
+            System.out.println("Unable to open file '" + fileName + "'");
+        }
+        catch(IOException ex) {
+            System.out.println("Error reading file '" + fileName + "'");
+        }
+
+    }
 
 
     public static int[][] deepCopyIntMatrix(int[][] input) {
@@ -60,51 +92,11 @@ public class Main {
         }
     }
 
-    public static void readFile()
-    {
-        // The name of the file to open.
-        String fileName = "input";
-
-        // This will reference one line at a time
-        String line = null;
-
-        try {
-            // FileReader reads text files in the default encoding.
-
-            File fileobj=new File("./"+fileName);
-            FileReader fileReader =
-                    new FileReader(fileobj);
-
-            // Always wrap FileReader in BufferedReader.
-            BufferedReader bufferedReader =
-                    new BufferedReader(fileReader);
-
-            while((line = bufferedReader.readLine()) != null) {
-
-            }
-
-            // Always close files.
-            bufferedReader.close();
-        }
-        catch(FileNotFoundException ex) {
-            System.out.println(
-                    "Unable to open file '" +
-                            fileName + "'");
-        }
-        catch(IOException ex) {
-            System.out.println(
-                    "Error reading file '"
-                            + fileName + "'");
-        }
-
-    }
-
-    public static void removeIsland(int[][] matrix, int key,Map<Integer,List<Pair<Integer,Integer>>> chainedCells){
+    public static void removeIsland(int[][] matrix, int key,Map<Integer,List<Pair<Integer,Integer>>> chainedCells,boolean print){
 
         List<Pair<Integer,Integer>> islandPositions=chainedCells.get(key);
 
         Map<Integer,Integer> maxrow=new HashMap<>();
-
 
         for(Pair<Integer,Integer> pair: islandPositions){
 
@@ -144,25 +136,26 @@ public class Main {
                 {
                     matrix[row][x]=-1;
                 }
-
                 row--;
             }
         }
 
-        for(int i=0;i<10;i++)
-        {
-            for(int j=0;j<10;j++)
-            {
-                if(matrix[i][j]==-1)
-                    System.out.print("* ");
-                else
-                    System.out.print(matrix[i][j]+" ");
+        if(print==true) {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (matrix[i][j] == -1)
+                        System.out.print("* ");
+                    else
+                        System.out.print(matrix[i][j] + " ");
+                }
+                System.out.println();
             }
+
             System.out.println();
         }
     }
 
-    public static int findIslands(int val, int n, Map<Integer,Integer> visitedHash,Map<Integer,List<Pair<Integer,Integer>>> chainedCells){
+    public static int findIslands(int[][] matrix,int val,Map<Integer,Integer> visitedHash,Map<Integer,List<Pair<Integer,Integer>>> chainedCells){
 
         // Count of number of elements in the island
         int count=0;
@@ -180,7 +173,7 @@ public class Main {
 
             count++;
 
-            // Checking bottom
+            // Checking Bottom
             if(row+1<n && matrix[row+1][col]==val)
             {
                 if(!visitedHash.containsKey(hashFunc(row+1,col)))
@@ -202,7 +195,7 @@ public class Main {
             }
 
             // Checking Left
-            if(col-1>0 && matrix[row][col-1]==val)
+            if(col-1>=0 && matrix[row][col-1]==val)
             {
                 if(!visitedHash.containsKey(hashFunc(row,col-1)))
                 {
@@ -213,7 +206,7 @@ public class Main {
             }
 
             // Checking Up
-            if(row-1>0 && matrix[row-1][col]==val)
+            if(row-1>=0 && matrix[row-1][col]==val)
             {
                 if(!visitedHash.containsKey(hashFunc(row-1,col)))
                 {
@@ -227,18 +220,18 @@ public class Main {
         return count;
     }
 
-    public static void findPartitions(int n,Map<Integer,List<Pair<Integer,Integer>>> chainedCells,Map<Integer,Integer> countHash){
+    public static void findPartitions(int[][] matrix,Map<Integer,List<Pair<Integer,Integer>>> chainedCells,Map<Integer,Integer> countHash){
 
         Map<Integer,Integer> visitedHash=new HashMap<>();
         for(int i=0;i<n;i++){
             for(int j=0;j<n;j++)
             {
-                if(!visitedHash.containsKey(hashFunc(i,j)))
+                if(!visitedHash.containsKey(hashFunc(i,j)) && matrix[i][j]!=-1)
                 {
                     queue.clear();
                     queue.add(new Pair<>(i,j));
                     hashLocation(i,j,visitedHash);
-                    int count=findIslands(matrix[i][j],n,visitedHash,chainedCells);
+                    int count=findIslands(matrix,matrix[i][j],visitedHash,chainedCells);
                     addIslandCount(i,j,count,countHash);
                 }
             }
@@ -246,45 +239,108 @@ public class Main {
 
     }
 
-    public static int minmax(int n,int depth,int[][] matrix,boolean isMax,int h, int score)
-    {
-        if(depth==h)
-            return score;
 
+    public static int minmax(int[][] matrix,int depth,boolean isMax,int cutOffHeight,int alpha,int beta)
+    {
 
         Map<Integer,Integer> countHash=new HashMap<>();
         Map<Integer,List<Pair<Integer,Integer>>> chainedCells=new HashMap<>();
-        int max=0;
+        findPartitions(matrix,chainedCells, countHash);
+
+        int row,col;
 
         if(isMax)
         {
-            findPartitions(n,chainedCells,countHash);
+            //System.out.println("MAX");
+            int temp = 0;
 
+            for (int key : chainedCells.keySet()) {
+                int[][] newmatrix = deepCopyIntMatrix(matrix);
+                removeIsland(newmatrix, key, chainedCells,false);
+
+                if(depth+1!=cutOffHeight)
+                {
+                    int val=minmax(newmatrix,depth + 1, false, cutOffHeight,alpha,beta);
+                    temp = Math.max(temp,val+countHash.get(key));
+                    alpha = Math.max(alpha, temp);
+                    if (beta <= alpha)
+                        break;
+                    //System.out.println(key/10+" "+key%10+" "+temp);
+
+
+
+                    if(maxRow!=-1)
+                    {
+                        if(maxScore<temp)
+                        {
+                            maxRow=key / 10;
+                            maxCol=key % 10;
+                            maxScore=temp;
+                            System.out.println("MAX "+maxRow+" "+maxCol+" "+maxScore+" "+depth);
+                            removeIsland(deepCopyIntMatrix(matrix),key,chainedCells,true);
+                        }
+                    }
+                    else {
+                        if(maxScore<temp) {
+                            maxRow = key / 10;
+                            maxCol = key % 10;
+                            maxScore = temp;
+                            System.out.println("MAX "+maxRow+" "+maxCol+" "+maxScore+" "+depth);
+                            removeIsland(deepCopyIntMatrix(matrix), key, chainedCells, true);
+                        }
+                    }
+
+                }
+                else{
+                    temp=Math.max(countHash.get(key),temp);
+                }
+            }
+            return temp;
         }
         else
         {
+            //System.out.println("MIN");
+            int temp = Integer.MAX_VALUE;
 
+            for (int key : chainedCells.keySet()) {
+                int[][] newmatrix = deepCopyIntMatrix(matrix);
+                removeIsland(newmatrix, key, chainedCells,false);
+
+                if(depth+1<cutOffHeight) {
+                    int val=minmax( newmatrix,depth+1, true, cutOffHeight,alpha,beta);
+                    temp = Math.min(temp,val);
+                    beta = Math.min(beta, temp);
+
+                    if (beta <= alpha)
+                        break;
+                    //System.out.println(key/10+" "+key%10+" "+temp);
+                }else {
+                    temp=0;
+                }
+            }
+            if(temp==Integer.MAX_VALUE)
+                temp=0;
+            return temp;
         }
-        return 0;
     }
 
     public static void main(String[] args) {
 
-        int n=10;
+        readMatrixFile();
 
-        for(int i=0;i<10;i++){
-            for(int j=0;j<10;j++)
+
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++)
             {
                 System.out.print(matrix[i][j]+" ");
             }
             System.out.println();
         }
+        System.out.println();
 
-        findPartitions(n);
-        for(Map.Entry<Integer,Integer> entry: countHash.entrySet()){
 
-            System.out.println(entry.getKey()/10+" "+entry.getKey()%10+" "+entry.getValue());
-            removeIsland(deepCopyIntMatrix(matrix),entry.getKey());
-        }
+        minmax(matrix,0,true,10,Integer.MIN_VALUE,Integer.MAX_VALUE);
+
+        System.out.println("Max Row: "+maxRow+" MaxCol: "+maxCol+" Max Score: "+maxScore);
     }
 }
