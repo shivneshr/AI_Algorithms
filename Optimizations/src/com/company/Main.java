@@ -23,6 +23,22 @@ class ValueComparator implements Comparator<Integer> {
     }
 }
 
+class ValueComparatorASC implements Comparator<Integer> {
+    HashMap<Integer,List<Position<Integer,Integer>>> map = new HashMap<>();
+
+    public ValueComparatorASC(Map<Integer,List<Position<Integer,Integer>>> map) {
+        this.map.putAll(map);
+    }
+
+    public int compare(Integer keyA, Integer keyB) {
+        if(map.get(keyA).size() <= map.get(keyB).size()){
+            return -1;
+        }else{
+            return 1;
+        }
+    }
+}
+
 class Position<S, T> {
     public final S row;
     public final T col;
@@ -318,32 +334,73 @@ public class Main {
         return result;
     }
 
-    public static Double minmax(int[][] matrix,int depth,boolean isMax,int cutOffHeight,Double alpha,Double beta,Double score)
+    // Sorting maps by value in descending value
+    public static TreeMap<Integer,List<Position<Integer,Integer>>> sortMapByValueASC(Map<Integer,List<Position<Integer,Integer>>> map){
+        Comparator<Integer> comparator = new ValueComparatorASC(map);
+        //TreeMap is a map sorted by its values
+        TreeMap<Integer,List<Position<Integer,Integer>>> result = new TreeMap<>(comparator);
+        result.putAll(map);
+        return result;
+    }
+
+    public static double findMaxMap(Map<Integer,Integer> countHash,Map<Integer,List<Position<Integer,Integer>>> chainedCells,int[][] newMatrix)
+    {
+        int maxkey=0,value=0;
+
+        for(Map.Entry<Integer,Integer> entry: countHash.entrySet())
+        {
+            if(value<entry.getValue())
+            {
+                value=entry.getValue();
+                maxkey=entry.getKey();
+            }
+        }
+
+        removeIsland(newMatrix,maxkey,chainedCells.get(maxkey));
+        bestState=newMatrix;
+        maxRow=maxkey/n;
+        maxCol=maxkey%n;
+
+        return value;
+    }
+
+    public static double minmax(int[][] matrix,int depth,boolean isMax,int cutOffHeight,Double alpha,Double beta,Double score)
     {
         call++;
         Map<Integer,Integer> countHash=new HashMap<>();
         Map<Integer,List<Position<Integer,Integer>>> chainedCells=new HashMap<>();
         findPartitions(matrix,chainedCells, countHash);
 
-        Map<Integer,List<Position<Integer,Integer>>> sortedMap = sortMapByValue(chainedCells);
-
-
-
+        Map<Integer,List<Position<Integer,Integer>>> sortedMap;
         //System.out.println("Depth "+depth +" Score: "+ score);
         //printMatrix(matrix);
 
-        if(depth>=cutOffHeight)
-            return score;
+        if(depth==cutOffHeight && cutOffHeight==1)
+        {
+            int[][] newmatrix=deepCopyIntMatrix(matrix);
+            if(isMax)
+                return Math.pow(findMaxMap(countHash,chainedCells,newmatrix),2);
+            else
+                return -1*Math.pow(findMaxMap(countHash,chainedCells,newmatrix),2);
+        }
+
 
         if(chainedCells.size()==0)
             return score;
 
         if(isMax) {
 
+            sortedMap = sortMapByValue(chainedCells);
             //System.out.println("MAX");
             Double v = -Double.MAX_VALUE;
 
             for (int key : sortedMap.keySet()) {
+
+                if(depth==cutOffHeight)
+                {
+                    double maxvalue=Collections.max(countHash.values());
+                    return score+Math.pow(maxvalue,2);
+                }
 
                 int[][] newmatrix = deepCopyIntMatrix(matrix);
                 removeIsland(newmatrix, key, chainedCells.get(key));
@@ -357,12 +414,13 @@ public class Main {
                     maxRow=key/n;
                     maxCol=key%n;
                     bestState=deepCopyIntMatrix(newmatrix);
-                    //System.out.println("Score: "+Math.pow(countHash.get(key),2));
+                    System.out.println("Score: "+Math.pow(countHash.get(key),2));
                     //printMatrix(newmatrix);
                 }
 
                 //System.out.println("MAX Depth= "+depth+" Score= "+val);
                 //printMatrix(newmatrix);
+
                 // Pruning step
                 alpha = Math.max(alpha, v);
                 if (beta <= alpha) {
@@ -375,30 +433,32 @@ public class Main {
         }
         else
         {
+            sortedMap = sortMapByValueASC(chainedCells);
             Double v=Double.MAX_VALUE;
             //System.out.println("MIN");
-            for (int key : chainedCells.keySet()) {
+            
+            for (int key : sortedMap.keySet()) {
 
-                    int[][] newmatrix = deepCopyIntMatrix(matrix);
-                    removeIsland(newmatrix, key, chainedCells.get(key));
+                if(depth==cutOffHeight)                                 
+                {
+                    double maxvalue=Collections.max(countHash.values());
+                    return score-Math.pow(maxvalue,2);
+                }
 
-                    // Receiving MAX score value which needs to be minimized
-                    v=Math.min(v,minmax( newmatrix,depth+1, true, cutOffHeight,alpha,beta,score - Math.pow(countHash.get(key),2)));
+                int[][] newmatrix = deepCopyIntMatrix(matrix);
+                removeIsland(newmatrix, key, chainedCells.get(key));
 
+                // Receiving MAX score value which needs to be minimized
+                v=Math.min(v,minmax( newmatrix,depth+1, true, cutOffHeight,alpha,beta,score - Math.pow(countHash.get(key),2)));
 
-                    //if(bestScore<val)
-                        //bestScore=val;
-                    //System.out.println("MIN Depth= "+depth+" Score= "+score);
-                    //printMatrix(newmatrix);
+                // Update beta with minimum score possible by MIN agents move
+                beta = Math.min(beta, v);
 
-                    // Update beta with minimum score possible by MIN agents move
-                    beta = Math.min(beta, v);
-
-                    // Pruning step
-                    if (beta <= alpha) {
-                        prune++;
-                        break;
-                    }
+                // Pruning step
+                if (beta <= alpha) {
+                    prune++;
+                    break;
+                }
             }
 
             return v;
@@ -412,6 +472,9 @@ public class Main {
         readMatrixFile(inputFilename);
 
         //printMatrix(matrix);
+        long startTime = System.currentTimeMillis();
+
+
 
         minmax(matrix,1,true,4,-Double.MAX_VALUE,Double.MAX_VALUE,0.0);
 
@@ -422,6 +485,9 @@ public class Main {
         System.out.println(location);
         printMatrix(bestState);
         System.out.println(call+" "+prune);
+        long endTime = System.currentTimeMillis();
+        double time=endTime-startTime;
+        System.out.println("That took " + time/1000 + " seconds");
     }
 }
 
