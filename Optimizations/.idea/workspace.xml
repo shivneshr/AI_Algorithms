@@ -15,22 +15,32 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/company/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2202">
-              <caret line="478" column="30" lean-forward="false" selection-start-line="478" selection-start-column="30" selection-end-line="478" selection-end-column="30" />
+            <state relative-caret-position="7020">
+              <caret line="593" column="82" lean-forward="true" selection-start-line="593" selection-start-column="82" selection-end-line="593" selection-end-column="82" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#1250#1251#0" expanded="true" />
+                <element signature="e#1286#1287#0" expanded="true" />
+                <element signature="e#1574#1575#0" expanded="true" />
+                <element signature="e#1610#1611#0" expanded="true" />
+                <element signature="e#1664#1665#0" expanded="true" />
+                <element signature="e#1725#1726#0" expanded="true" />
+                <element signature="method#readMatrixFile#0;class#Main#0" expanded="false" />
+                <element signature="method#printMatrix#0;class#Main#0" expanded="false" />
                 <element signature="method#deepCopyIntMatrix#0;class#Main#0" expanded="false" />
-                <element signature="e#4896#4897#0" expanded="true" />
-                <element signature="e#4930#4931#0" expanded="true" />
+                <element signature="method#hashLocation#0;class#Main#0" expanded="false" />
                 <element signature="method#addIslandCount#0;class#Main#0" expanded="false" />
+                <element signature="method#hashChainedCells#0;class#Main#0" expanded="false" />
                 <element signature="method#removeIsland#0;class#Main#0" expanded="false" />
+                <element signature="e#11732#11761#0" expanded="true" />
+                <element signature="e#12415#12433#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="output" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/output">
+      <file leaf-file-name="score" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/score">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -39,17 +49,34 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="output" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/output">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="75">
+              <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="input" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/input">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="2" lean-forward="false" selection-start-line="0" selection-start-column="2" selection-end-line="0" selection-end-column="2" />
+            <state relative-caret-position="90">
+              <caret line="6" column="4" lean-forward="false" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="4" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>prin</find>
+      <find>printm</find>
+      <find>Position</find>
+    </findStrings>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -196,12 +223,12 @@
       <updated>1507829058950</updated>
       <workItem from="1507829060331" duration="36995000" />
       <workItem from="1508085577197" duration="503000" />
-      <workItem from="1508130763975" duration="25194000" />
+      <workItem from="1508130763975" duration="35451000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="62692000" />
+    <option name="totallyTimeSpent" value="72949000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1440" height="814" extended-state="0" />
@@ -212,7 +239,7 @@
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3449235" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3449235" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -238,7 +265,21 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="42" />
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/company/Main.java</url>
+          <line>195</line>
+          <properties />
+          <option name="timeStamp" value="43" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/company/Main.java</url>
+          <line>492</line>
+          <properties />
+          <option name="timeStamp" value="44" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="45" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -249,11 +290,21 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1250#1251#0" expanded="true" />
+            <element signature="e#1286#1287#0" expanded="true" />
+            <element signature="e#1574#1575#0" expanded="true" />
+            <element signature="e#1610#1611#0" expanded="true" />
+            <element signature="e#1664#1665#0" expanded="true" />
+            <element signature="e#1725#1726#0" expanded="true" />
+            <element signature="method#readMatrixFile#0;class#Main#0" expanded="false" />
+            <element signature="method#printMatrix#0;class#Main#0" expanded="false" />
             <element signature="method#deepCopyIntMatrix#0;class#Main#0" expanded="false" />
-            <element signature="e#4896#4897#0" expanded="true" />
-            <element signature="e#4930#4931#0" expanded="true" />
+            <element signature="method#hashLocation#0;class#Main#0" expanded="false" />
             <element signature="method#addIslandCount#0;class#Main#0" expanded="false" />
+            <element signature="method#hashChainedCells#0;class#Main#0" expanded="false" />
             <element signature="method#removeIsland#0;class#Main#0" expanded="false" />
+            <element signature="e#11732#11761#0" expanded="true" />
+            <element signature="e#12415#12433#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -272,11 +323,21 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1250#1251#0" expanded="true" />
+            <element signature="e#1286#1287#0" expanded="true" />
+            <element signature="e#1574#1575#0" expanded="true" />
+            <element signature="e#1610#1611#0" expanded="true" />
+            <element signature="e#1664#1665#0" expanded="true" />
+            <element signature="e#1725#1726#0" expanded="true" />
+            <element signature="method#readMatrixFile#0;class#Main#0" expanded="false" />
+            <element signature="method#printMatrix#0;class#Main#0" expanded="false" />
             <element signature="method#deepCopyIntMatrix#0;class#Main#0" expanded="false" />
-            <element signature="e#4896#4897#0" expanded="true" />
-            <element signature="e#4930#4931#0" expanded="true" />
+            <element signature="method#hashLocation#0;class#Main#0" expanded="false" />
             <element signature="method#addIslandCount#0;class#Main#0" expanded="false" />
+            <element signature="method#hashChainedCells#0;class#Main#0" expanded="false" />
             <element signature="method#removeIsland#0;class#Main#0" expanded="false" />
+            <element signature="e#11732#11761#0" expanded="true" />
+            <element signature="e#12415#12433#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -291,13 +352,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/input">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="2" lean-forward="false" selection-start-line="0" selection-start-column="2" selection-end-line="0" selection-end-column="2" />
+        <state relative-caret-position="90">
+          <caret line="6" column="4" lean-forward="false" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/output">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/score">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -307,15 +376,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/company/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2202">
-          <caret line="478" column="30" lean-forward="false" selection-start-line="478" selection-start-column="30" selection-end-line="478" selection-end-column="30" />
+        <state relative-caret-position="7020">
+          <caret line="593" column="82" lean-forward="true" selection-start-line="593" selection-start-column="82" selection-end-line="593" selection-end-column="82" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1250#1251#0" expanded="true" />
+            <element signature="e#1286#1287#0" expanded="true" />
+            <element signature="e#1574#1575#0" expanded="true" />
+            <element signature="e#1610#1611#0" expanded="true" />
+            <element signature="e#1664#1665#0" expanded="true" />
+            <element signature="e#1725#1726#0" expanded="true" />
+            <element signature="method#readMatrixFile#0;class#Main#0" expanded="false" />
+            <element signature="method#printMatrix#0;class#Main#0" expanded="false" />
             <element signature="method#deepCopyIntMatrix#0;class#Main#0" expanded="false" />
-            <element signature="e#4896#4897#0" expanded="true" />
-            <element signature="e#4930#4931#0" expanded="true" />
+            <element signature="method#hashLocation#0;class#Main#0" expanded="false" />
             <element signature="method#addIslandCount#0;class#Main#0" expanded="false" />
+            <element signature="method#hashChainedCells#0;class#Main#0" expanded="false" />
             <element signature="method#removeIsland#0;class#Main#0" expanded="false" />
+            <element signature="e#11732#11761#0" expanded="true" />
+            <element signature="e#12415#12433#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -2,40 +2,68 @@ package com.company;
 
 
 
+import org.omg.CORBA.INTERNAL;
+
 import java.io.*;
 import java.util.*;
 
 
 // Sort the dictionary based on the Island size
-class ValueComparator implements Comparator<Integer> {
-    HashMap<Integer,List<Position<Integer,Integer>>> map = new HashMap<>();
+//class ValueComparator implements Comparator<Integer> {
+//    HashMap<Integer,List<Position<Integer,Integer>>> map = new HashMap<>();
+//
+//    public ValueComparator(Map<Integer,List<Position<Integer,Integer>>> map) {
+//        this.map.putAll(map);
+//    }
+//
+//    public int compare(Integer keyA, Integer keyB) {
+//        if(map.get(keyA).size() >= map.get(keyB).size()){
+//            return -1;
+//        }else{
+//            return 1;
+//        }
+//    }
+//}
+//
+//class ValueComparatorASC implements Comparator<Integer> {
+//    HashMap<Integer,List<Position<Integer,Integer>>> map = new HashMap<>();
+//
+//    public ValueComparatorASC(Map<Integer,List<Position<Integer,Integer>>> map) {
+//        this.map.putAll(map);
+//    }
+//
+//    public int compare(Integer keyA, Integer keyB) {
+//        if(map.get(keyA).size() <= map.get(keyB).size()){
+//            return -1;
+//        }else{
+//            return 1;
+//        }
+//    }
+//}
 
-    public ValueComparator(Map<Integer,List<Position<Integer,Integer>>> map) {
+
+class ValueComparator implements Comparator<Integer> {
+    HashMap<Integer,Integer> map = new HashMap<>();
+
+    public ValueComparator(Map<Integer,Integer> map) {
         this.map.putAll(map);
     }
 
     public int compare(Integer keyA, Integer keyB) {
-        if(map.get(keyA).size() >= map.get(keyB).size()){
-            return -1;
-        }else{
-            return 1;
-        }
+
+        return map.get(keyA).compareTo(map.get(keyB));
     }
 }
 
 class ValueComparatorASC implements Comparator<Integer> {
-    HashMap<Integer,List<Position<Integer,Integer>>> map = new HashMap<>();
+    HashMap<Integer,Integer> map = new HashMap<>();
 
-    public ValueComparatorASC(Map<Integer,List<Position<Integer,Integer>>> map) {
+    public ValueComparatorASC(Map<Integer,Integer> map) {
         this.map.putAll(map);
     }
 
     public int compare(Integer keyA, Integer keyB) {
-        if(map.get(keyA).size() <= map.get(keyB).size()){
-            return -1;
-        }else{
-            return 1;
-        }
+        return map.get(keyB).compareTo(map.get(keyA));
     }
 }
 
@@ -64,8 +92,9 @@ public class Main {
     // Calculate and storing the best score, row, col values
     public static int[][] bestState=null;
     public static Double bestScore=-Double.MAX_VALUE,timeLeft;
+    public static int movescore;
     public static int maxRow=-1,maxCol=-1,n,noOfFruits;
-    public static Queue<Position> queue=new LinkedList<>();
+    public static Queue<Position<Integer,Integer>> queue=new LinkedList<>();
 
 
     //File variables and reading
@@ -146,18 +175,34 @@ public class Main {
         }
     }
 
+    public static void writeToScore(int score){
+
+         try {
+             PrintWriter bw = new PrintWriter("score","UTF-8");
+
+             bw.write(""+score+"");
+             bw.println();
+             bw.close();
+
+         }catch (Exception ex)
+         {
+             ex.printStackTrace();
+         }
+
+    }
+
     public static void printMatrix(int[][] matrix){
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (matrix[i][j] == -1)
-                    System.out.print("* ");
+                    System.out.print("*");
                 else if(matrix[i][j] == -2)
-                    System.out.print("# ");
+                    System.out.print("#");
                 else if(matrix[i][j] == -3)
-                    System.out.print("& ");
+                    System.out.print("&");
                 else
-                    System.out.print(matrix[i][j] + " ");
+                    System.out.print(matrix[i][j]);
             }
             System.out.println();
         }
@@ -269,7 +314,7 @@ public class Main {
                 if(!visitedHash.containsKey(hashFunc(row+1,col)))
                 {
                     hashLocation(row+1,col,visitedHash);
-                    queue.add(new Position(row+1,col));
+                    queue.add(new Position<Integer,Integer>(row+1,col));
                 }
             }
 
@@ -279,7 +324,7 @@ public class Main {
                 if(!visitedHash.containsKey(hashFunc(row,col+1)))
                 {
                     hashLocation(row,col+1,visitedHash);
-                    queue.add(new Position(row,col+1));
+                    queue.add(new Position<Integer,Integer>(row,col+1));
                 }
             }
 
@@ -289,7 +334,7 @@ public class Main {
                 if(!visitedHash.containsKey(hashFunc(row,col-1)))
                 {
                     hashLocation(row,col-1,visitedHash);
-                    queue.add(new Position(row,col-1));
+                    queue.add(new Position<Integer,Integer>(row,col-1));
                 }
             }
 
@@ -299,7 +344,7 @@ public class Main {
                 if(!visitedHash.containsKey(hashFunc(row-1,col)))
                 {
                     hashLocation(row-1,col,visitedHash);
-                    queue.add(new Position(row-1,col));
+                    queue.add(new Position<Integer,Integer>(row-1,col));
                 }
             }
         }
@@ -326,22 +371,68 @@ public class Main {
     }
 
     // Sorting maps by value in descending value
-    public static TreeMap<Integer,List<Position<Integer,Integer>>> sortMapByValue(Map<Integer,List<Position<Integer,Integer>>> map){
-        Comparator<Integer> comparator = new ValueComparator(map);
-        //TreeMap is a map sorted by its values
-        TreeMap<Integer,List<Position<Integer,Integer>>> result = new TreeMap<>(comparator);
-        result.putAll(map);
-        return result;
-    }
+    //public static TreeMap<Integer,List<Position<Integer,Integer>>> sortMapByValue(Map<Integer,List<Position<Integer,Integer>>> map){
+    //    Comparator<Integer> comparator = new ValueComparator(map);
+    //    //TreeMap is a map sorted by its values
+    //    TreeMap<Integer,List<Position<Integer,Integer>>> result = new TreeMap<>(comparator);
+    //    result.putAll(map);
+    //    return result;
+    //}
+    //
+    //// Sorting maps by value in descending value
+    //public static TreeMap<Integer,List<Position<Integer,Integer>>> sortMapByValueASC(Map<Integer,List<Position<Integer,Integer>>> map){
+    //    Comparator<Integer> comparator = new ValueComparatorASC(map);
+    //    //TreeMap is a map sorted by its values
+    //    TreeMap<Integer,List<Position<Integer,Integer>>> result = new TreeMap<>(comparator);
+    //    result.putAll(map);
+    //    return result;
+    //}
 
-    // Sorting maps by value in descending value
-    public static TreeMap<Integer,List<Position<Integer,Integer>>> sortMapByValueASC(Map<Integer,List<Position<Integer,Integer>>> map){
-        Comparator<Integer> comparator = new ValueComparatorASC(map);
-        //TreeMap is a map sorted by its values
-        TreeMap<Integer,List<Position<Integer,Integer>>> result = new TreeMap<>(comparator);
-        result.putAll(map);
-        return result;
-    }
+    private static Map<Integer, Integer> sortByComparator(Map<Integer, Integer> unsortMap, final boolean order)
+        {
+            List<Map.Entry<Integer, Integer>> list = new LinkedList<Map.Entry<Integer, Integer>>(unsortMap.entrySet());
+            Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>()
+            {
+                public int compare(Map.Entry<Integer, Integer> o1,
+                                   Map.Entry<Integer, Integer> o2)
+                {
+                    if (order)
+                    {
+                        return o1.getValue().compareTo(o2.getValue());
+                    }
+                    else
+                    {
+                        return o2.getValue().compareTo(o1.getValue());
+                    }
+                }
+            });
+            Map<Integer, Integer> sortedMap = new LinkedHashMap<Integer, Integer>();
+            for (Map.Entry<Integer, Integer> entry : list)
+            {
+                sortedMap.put(entry.getKey(), entry.getValue());
+            }
+            return sortedMap;
+        }
+
+
+
+   public static Map<Integer,Integer> sortMapByValue(Map<Integer,Integer> map){
+       Comparator<Integer> comparator = new ValueComparator(map);
+       //TreeMap is a map sorted by its values
+       Map<Integer,Integer> result = new TreeMap<>(comparator);
+       result.putAll(map);
+       return result;
+   }
+
+   // Sorting maps by value in descending value
+   public static Map<Integer,Integer> sortMapByValueASC(Map<Integer,Integer> map){
+       Comparator<Integer> comparator = new ValueComparatorASC(map);
+       //TreeMap is a map sorted by its values
+       Map<Integer,Integer> result = new TreeMap<>(comparator);
+       result.putAll(map);
+       return result;
+   }
+
 
     public static double findMaxMap(Map<Integer,Integer> countHash,Map<Integer,List<Position<Integer,Integer>>> chainedCells,int[][] newMatrix)
     {
@@ -360,7 +451,7 @@ public class Main {
         bestState=newMatrix;
         maxRow=maxkey/n;
         maxCol=maxkey%n;
-
+        movescore=countHash.get(maxkey);
         return value;
     }
 
@@ -370,8 +461,9 @@ public class Main {
         Map<Integer,Integer> countHash=new HashMap<>();
         Map<Integer,List<Position<Integer,Integer>>> chainedCells=new HashMap<>();
         findPartitions(matrix,chainedCells, countHash);
-
-        Map<Integer,List<Position<Integer,Integer>>> sortedMap;
+        if(depth==1)
+            System.out.println(countHash.size());
+        Map<Integer,Integer> sortedMap;
         //System.out.println("Depth "+depth +" Score: "+ score);
         //printMatrix(matrix);
 
@@ -390,7 +482,13 @@ public class Main {
 
         if(isMax) {
 
-            sortedMap = sortMapByValue(chainedCells);
+            sortedMap = sortByComparator(countHash,isMax);
+
+             //for(Map.Entry<Integer,Integer> entry: sortedMap.entrySet())
+             //{
+             //    System.out.println(entry.getKey()/n+" "+entry.getKey()%n+" "+entry.getValue());
+             //}
+
             //System.out.println("MAX");
             Double v = -Double.MAX_VALUE;
 
@@ -399,6 +497,7 @@ public class Main {
                 if(depth==cutOffHeight)
                 {
                     double maxvalue=Collections.max(countHash.values());
+                    //call+=countHash.size();
                     return score+Math.pow(maxvalue,2);
                 }
 
@@ -413,10 +512,14 @@ public class Main {
                     bestScore = v;
                     maxRow=key/n;
                     maxCol=key%n;
+                    System.out.println("Best Score "+bestScore);
                     bestState=deepCopyIntMatrix(newmatrix);
+                    movescore=countHash.get(key);
                     System.out.println("Score: "+Math.pow(countHash.get(key),2));
                     //printMatrix(newmatrix);
                 }
+
+
 
                 //System.out.println("MAX Depth= "+depth+" Score= "+val);
                 //printMatrix(newmatrix);
@@ -433,7 +536,7 @@ public class Main {
         }
         else
         {
-            sortedMap = sortMapByValueASC(chainedCells);
+            sortedMap = sortByComparator(countHash,isMax);
             Double v=Double.MAX_VALUE;
             //System.out.println("MIN");
             
@@ -442,6 +545,7 @@ public class Main {
                 if(depth==cutOffHeight)                                 
                 {
                     double maxvalue=Collections.max(countHash.values());
+                    //call+=countHash.size();
                     return score-Math.pow(maxvalue,2);
                 }
 
@@ -473,15 +577,15 @@ public class Main {
 
         //printMatrix(matrix);
         long startTime = System.currentTimeMillis();
+        minmax(matrix,1,true,3,-Double.MAX_VALUE,Double.MAX_VALUE,0.0);
 
-
-
-        minmax(matrix,1,true,4,-Double.MAX_VALUE,Double.MAX_VALUE,0.0);
+        char columnAlphabet=(char)(65+maxCol);
 
         System.out.println("Row "+maxRow+" Col "+maxCol);
-        char columnAlphabet=(char)(65+maxCol);
+
         String location=columnAlphabet+""+(maxRow+1);
         writeMatrixFile(bestState,location);
+        writeToScore(movescore);
         System.out.println(location);
         printMatrix(bestState);
         System.out.println(call+" "+prune);
@@ -490,17 +594,3 @@ public class Main {
         System.out.println("That took " + time/1000 + " seconds");
     }
 }
-
-
-//int[][] temp=new int[][]{{1,2,3},{1,2,3},{1,2,3}};
-//int[][] temp1=new int[][]{{2,1,3},{1,2,3},{1,2,3}};
-//int[] i={1,2,3};
-//int[] i1={1,2,3};
-
-//System.out.println(Arrays.equals(i,i1));
-//System.out.println(Arrays.hashCode(i));
-//System.out.println(Arrays.hashCode(i1));
-
-//System.out.println(Arrays.equals(temp,temp1));
-//System.out.println(Arrays.deepHashCode(temp));
-//System.out.println(Arrays.deepHashCode(temp1));
