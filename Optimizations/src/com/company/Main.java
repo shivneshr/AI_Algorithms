@@ -8,65 +8,6 @@ import java.io.*;
 import java.util.*;
 
 
-// Sort the dictionary based on the Island size
-//class ValueComparator implements Comparator<Integer> {
-//    HashMap<Integer,List<Position<Integer,Integer>>> map = new HashMap<>();
-//
-//    public ValueComparator(Map<Integer,List<Position<Integer,Integer>>> map) {
-//        this.map.putAll(map);
-//    }
-//
-//    public int compare(Integer keyA, Integer keyB) {
-//        if(map.get(keyA).size() >= map.get(keyB).size()){
-//            return -1;
-//        }else{
-//            return 1;
-//        }
-//    }
-//}
-//
-//class ValueComparatorASC implements Comparator<Integer> {
-//    HashMap<Integer,List<Position<Integer,Integer>>> map = new HashMap<>();
-//
-//    public ValueComparatorASC(Map<Integer,List<Position<Integer,Integer>>> map) {
-//        this.map.putAll(map);
-//    }
-//
-//    public int compare(Integer keyA, Integer keyB) {
-//        if(map.get(keyA).size() <= map.get(keyB).size()){
-//            return -1;
-//        }else{
-//            return 1;
-//        }
-//    }
-//}
-
-
-class ValueComparator implements Comparator<Integer> {
-    HashMap<Integer,Integer> map = new HashMap<>();
-
-    public ValueComparator(Map<Integer,Integer> map) {
-        this.map.putAll(map);
-    }
-
-    public int compare(Integer keyA, Integer keyB) {
-
-        return map.get(keyA).compareTo(map.get(keyB));
-    }
-}
-
-class ValueComparatorASC implements Comparator<Integer> {
-    HashMap<Integer,Integer> map = new HashMap<>();
-
-    public ValueComparatorASC(Map<Integer,Integer> map) {
-        this.map.putAll(map);
-    }
-
-    public int compare(Integer keyA, Integer keyB) {
-        return map.get(keyB).compareTo(map.get(keyA));
-    }
-}
-
 class Position<S, T> {
     public final S row;
     public final T col;
@@ -76,14 +17,7 @@ class Position<S, T> {
         this.col = y;
     }
 }
-/*class Position{
-    public int row;
-    public int col;
 
-    Position(int x,int y){
-        row=x;col=y;
-    }
-}*/
 public class Main {
 
     //Common global variables
@@ -98,7 +32,7 @@ public class Main {
 
 
     //File variables and reading
-    public static String inputFilename="input";
+    public static String inputFilename="input.txt";
 
     // Variable metrics
     public static int call=0,prune=0;
@@ -131,7 +65,7 @@ public class Main {
                 String line=bufferedReader.readLine();
                 String[] matrixLine=line.split("");
 
-                for(int col=0;col<matrixLine.length;col++)
+                for(int col=0;col<n;col++)
                 {
                     if(matrixLine[col].equals("*"))
                         matrix[row][col]=-1;
@@ -153,7 +87,7 @@ public class Main {
     public static void writeMatrixFile(int[][] matrix,String location) {
 
         try {
-            PrintWriter bw = new PrintWriter("output","UTF-8");
+            PrintWriter bw = new PrintWriter("output.txt","UTF-8");
 
             bw.write(location);
             bw.println();
@@ -178,7 +112,7 @@ public class Main {
     public static void writeToScore(int score){
 
          try {
-             PrintWriter bw = new PrintWriter("score","UTF-8");
+             PrintWriter bw = new PrintWriter("score.txt","UTF-8");
 
              bw.write(""+score+"");
              bw.println();
@@ -238,7 +172,7 @@ public class Main {
 
     public static void hashChainedCells(int key,int row, int col,Map<Integer,List<Position<Integer,Integer>>> chainedCells) {
         if(!chainedCells.containsKey(key)){
-            chainedCells.put(key,new ArrayList<Position<Integer,Integer>>());
+            chainedCells.put(key,new LinkedList<Position<Integer,Integer>>());
         }
 
         if(row!=-1 && col!=-1)
@@ -286,7 +220,7 @@ public class Main {
         }
     }
 
-    public static int findIslands(int[][] matrix,int val,Map<Integer,Integer> visitedHash,Map<Integer,List<Position<Integer,Integer>>> chainedCells){
+    public static int findIslands(int[][] matrix,int val,Map<Integer,List<Position<Integer,Integer>>> chainedCells){
 
         // Count of number of elements in the island
         int count=0;
@@ -294,7 +228,9 @@ public class Main {
         int hashvalue=hashFunc(maincell.row,maincell.col);
 
 
-        int[][] tempMat=deepCopyIntMatrix(matrix);
+        //int[][] tempMat=deepCopyIntMatrix(matrix);
+
+        matrix[maincell.row][maincell.col]=-1;
 
         // Using BFS to find the set of islands for a particular value
         while(queue.size()!=0){
@@ -311,9 +247,10 @@ public class Main {
             // Checking Bottom
             if(row+1<n && matrix[row+1][col]==val)
             {
-                if(!visitedHash.containsKey(hashFunc(row+1,col)))
+                if(matrix[row+1][col]!=-1)
                 {
-                    hashLocation(row+1,col,visitedHash);
+                    //hashLocation(row+1,col,visitedHash);
+                    matrix[row+1][col]=-1;
                     queue.add(new Position<Integer,Integer>(row+1,col));
                 }
             }
@@ -321,9 +258,10 @@ public class Main {
             // Checking Right
             if(col+1<n && matrix[row][col+1]==val)
             {
-                if(!visitedHash.containsKey(hashFunc(row,col+1)))
+                if(matrix[row][col+1]!=-1)
                 {
-                    hashLocation(row,col+1,visitedHash);
+                    //hashLocation(row,col+1,visitedHash);
+                    matrix[row][col+1]=-1;
                     queue.add(new Position<Integer,Integer>(row,col+1));
                 }
             }
@@ -331,9 +269,10 @@ public class Main {
             // Checking Left
             if(col-1>=0 && matrix[row][col-1]==val)
             {
-                if(!visitedHash.containsKey(hashFunc(row,col-1)))
+                if(matrix[row][col-1]!=-1)
                 {
-                    hashLocation(row,col-1,visitedHash);
+                    //hashLocation(row,col-1,visitedHash);
+                    matrix[row][col-1]=-1;
                     queue.add(new Position<Integer,Integer>(row,col-1));
                 }
             }
@@ -341,9 +280,10 @@ public class Main {
             // Checking Up
             if(row-1>=0 && matrix[row-1][col]==val)
             {
-                if(!visitedHash.containsKey(hashFunc(row-1,col)))
+                if(matrix[row-1][col]!=-1)
                 {
-                    hashLocation(row-1,col,visitedHash);
+                    //hashLocation(row-1,col,visitedHash);
+                    matrix[row-1][col]=-1;
                     queue.add(new Position<Integer,Integer>(row-1,col));
                 }
             }
@@ -357,12 +297,12 @@ public class Main {
         for(int i=0;i<n;i++){
             for(int j=0;j<n;j++)
             {
-                if(!visitedHash.containsKey(hashFunc(i,j)) && matrix[i][j]!=-1)
+                if(matrix[i][j]!=-1)
                 {
                     queue.clear();
                     queue.add(new Position<Integer,Integer>(i,j));
                     hashLocation(i,j,visitedHash);
-                    int count=findIslands(matrix,matrix[i][j],visitedHash,chainedCells);
+                    int count=findIslands(matrix,matrix[i][j],chainedCells);
                     addIslandCount(i,j,count,countHash);
                 }
             }
@@ -370,70 +310,34 @@ public class Main {
 
     }
 
-    // Sorting maps by value in descending value
-    //public static TreeMap<Integer,List<Position<Integer,Integer>>> sortMapByValue(Map<Integer,List<Position<Integer,Integer>>> map){
-    //    Comparator<Integer> comparator = new ValueComparator(map);
-    //    //TreeMap is a map sorted by its values
-    //    TreeMap<Integer,List<Position<Integer,Integer>>> result = new TreeMap<>(comparator);
-    //    result.putAll(map);
-    //    return result;
-    //}
-    //
-    //// Sorting maps by value in descending value
-    //public static TreeMap<Integer,List<Position<Integer,Integer>>> sortMapByValueASC(Map<Integer,List<Position<Integer,Integer>>> map){
-    //    Comparator<Integer> comparator = new ValueComparatorASC(map);
-    //    //TreeMap is a map sorted by its values
-    //    TreeMap<Integer,List<Position<Integer,Integer>>> result = new TreeMap<>(comparator);
-    //    result.putAll(map);
-    //    return result;
-    //}
+    private static Map<Integer, Integer> sortHashMap(Map<Integer, Integer> unsortMap, final boolean sortOrder)
+    {
+        List<Map.Entry<Integer, Integer>> list = new ArrayList<Map.Entry<Integer, Integer>>(unsortMap.entrySet());
 
-    private static Map<Integer, Integer> sortByComparator(Map<Integer, Integer> unsortMap, final boolean order)
-        {
-            List<Map.Entry<Integer, Integer>> list = new LinkedList<Map.Entry<Integer, Integer>>(unsortMap.entrySet());
-            Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>()
+        Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>() {
+            public int compare(Map.Entry<Integer, Integer> o1,Map.Entry<Integer, Integer> o2)
             {
-                public int compare(Map.Entry<Integer, Integer> o1,
-                                   Map.Entry<Integer, Integer> o2)
+                if (sortOrder)
                 {
-                    if (order)
-                    {
-                        return o1.getValue().compareTo(o2.getValue());
-                    }
-                    else
-                    {
-                        return o2.getValue().compareTo(o1.getValue());
-                    }
+                    return o2.getValue().compareTo(o1.getValue());
                 }
-            });
-            Map<Integer, Integer> sortedMap = new LinkedHashMap<Integer, Integer>();
-            for (Map.Entry<Integer, Integer> entry : list)
-            {
-                sortedMap.put(entry.getKey(), entry.getValue());
+                else
+                {
+                    return o1.getValue().compareTo(o2.getValue());
+                }
             }
-            return sortedMap;
-        }
+        });
+
+        Map<Integer, Integer> sortedMap = new LinkedHashMap<Integer, Integer>();
+
+        for (Map.Entry<Integer, Integer> entry : list)
+        {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }   return sortedMap;
+    }
 
 
-
-   public static Map<Integer,Integer> sortMapByValue(Map<Integer,Integer> map){
-       Comparator<Integer> comparator = new ValueComparator(map);
-       //TreeMap is a map sorted by its values
-       Map<Integer,Integer> result = new TreeMap<>(comparator);
-       result.putAll(map);
-       return result;
-   }
-
-   // Sorting maps by value in descending value
-   public static Map<Integer,Integer> sortMapByValueASC(Map<Integer,Integer> map){
-       Comparator<Integer> comparator = new ValueComparatorASC(map);
-       //TreeMap is a map sorted by its values
-       Map<Integer,Integer> result = new TreeMap<>(comparator);
-       result.putAll(map);
-       return result;
-   }
-
-
+    // THis is only used when depth==1
     public static double findMaxMap(Map<Integer,Integer> countHash,Map<Integer,List<Position<Integer,Integer>>> chainedCells,int[][] newMatrix)
     {
         int maxkey=0,value=0;
@@ -460,13 +364,11 @@ public class Main {
         call++;
         Map<Integer,Integer> countHash=new HashMap<>();
         Map<Integer,List<Position<Integer,Integer>>> chainedCells=new HashMap<>();
-        findPartitions(matrix,chainedCells, countHash);
-        if(depth==1)
-            System.out.println(countHash.size());
-        Map<Integer,Integer> sortedMap;
-        //System.out.println("Depth "+depth +" Score: "+ score);
-        //printMatrix(matrix);
+        findPartitions(deepCopyIntMatrix(matrix),chainedCells, countHash);
 
+        Map<Integer,Integer> sortedMap;
+
+        // When we are going only one level in the board
         if(depth==cutOffHeight && cutOffHeight==1)
         {
             int[][] newmatrix=deepCopyIntMatrix(matrix);
@@ -476,18 +378,13 @@ public class Main {
                 return -1*Math.pow(findMaxMap(countHash,chainedCells,newmatrix),2);
         }
 
-
+        // Exit condition when the boards is empty
         if(chainedCells.size()==0)
             return score;
 
         if(isMax) {
 
-            sortedMap = sortByComparator(countHash,isMax);
-
-             //for(Map.Entry<Integer,Integer> entry: sortedMap.entrySet())
-             //{
-             //    System.out.println(entry.getKey()/n+" "+entry.getKey()%n+" "+entry.getValue());
-             //}
+            sortedMap = sortHashMap(countHash,isMax);
 
             //System.out.println("MAX");
             Double v = -Double.MAX_VALUE;
@@ -512,17 +409,11 @@ public class Main {
                     bestScore = v;
                     maxRow=key/n;
                     maxCol=key%n;
-                    System.out.println("Best Score "+bestScore);
                     bestState=deepCopyIntMatrix(newmatrix);
                     movescore=countHash.get(key);
-                    System.out.println("Score: "+Math.pow(countHash.get(key),2));
-                    //printMatrix(newmatrix);
+                    //System.out.println("Best Score "+bestScore);
+                    //System.out.println("Score: "+Math.pow(countHash.get(key),2));
                 }
-
-
-
-                //System.out.println("MAX Depth= "+depth+" Score= "+val);
-                //printMatrix(newmatrix);
 
                 // Pruning step
                 alpha = Math.max(alpha, v);
@@ -536,7 +427,7 @@ public class Main {
         }
         else
         {
-            sortedMap = sortByComparator(countHash,isMax);
+            sortedMap = sortHashMap(countHash,isMax);
             Double v=Double.MAX_VALUE;
             //System.out.println("MIN");
             
@@ -571,26 +462,56 @@ public class Main {
 
     }
 
+    public static int calculateCutOffHeight()
+    {
+        Map<Integer,Integer> countHash=new HashMap<>();
+        Map<Integer,List<Position<Integer,Integer>>> chainedCells=new HashMap<>();
+        findPartitions(deepCopyIntMatrix(matrix),chainedCells, countHash);
+
+        int noOfIslands=countHash.size();
+
+        System.out.println("No of Islands: "+noOfIslands);
+        int cutOffHeight=3;
+        if(noOfIslands>150)
+            cutOffHeight=3;
+        else if(noOfIslands<100)
+            cutOffHeight=5;
+        else
+            cutOffHeight=4;
+
+        if(timeLeft<50)
+            cutOffHeight=2;
+        if(timeLeft<20)
+            cutOffHeight=1;
+
+        System.out.println("CutoffHeight: "+cutOffHeight);
+        return 5;
+
+    }
+
     public static void main(String[] args) {
 
-        readMatrixFile(inputFilename);
-
-        //printMatrix(matrix);
         long startTime = System.currentTimeMillis();
-        minmax(matrix,1,true,3,-Double.MAX_VALUE,Double.MAX_VALUE,0.0);
+        readMatrixFile(inputFilename);
+        int cutOffHeight=1;
+
+        cutOffHeight=calculateCutOffHeight();
+        minmax(matrix,1,true,cutOffHeight,-Double.MAX_VALUE,Double.MAX_VALUE,0.0);
 
         char columnAlphabet=(char)(65+maxCol);
-
-        System.out.println("Row "+maxRow+" Col "+maxCol);
-
         String location=columnAlphabet+""+(maxRow+1);
+
+        //System.out.println("Row "+maxRow+" Col "+maxCol);
+        //System.out.println(location);
+        //printMatrix(bestState);
+        //System.out.println(call+" "+prune);
+
         writeMatrixFile(bestState,location);
         writeToScore(movescore);
-        System.out.println(location);
-        printMatrix(bestState);
-        System.out.println(call+" "+prune);
+
         long endTime = System.currentTimeMillis();
         double time=endTime-startTime;
+
         System.out.println("That took " + time/1000 + " seconds");
     }
 }
