@@ -307,12 +307,11 @@ public class Main {
                 }
             }
         }
-
     }
 
-    private static Map<Integer, Integer> sortHashMap(Map<Integer, Integer> unsortMap, final boolean sortOrder)
+    private static List<Map.Entry<Integer, Integer>> sortHashMap(Map<Integer, Integer> unsortMap, final boolean sortOrder)
     {
-        List<Map.Entry<Integer, Integer>> list = new ArrayList<Map.Entry<Integer, Integer>>(unsortMap.entrySet());
+        List<Map.Entry<Integer, Integer>> list = new LinkedList<Map.Entry<Integer, Integer>>(unsortMap.entrySet());
 
         Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>() {
             public int compare(Map.Entry<Integer, Integer> o1,Map.Entry<Integer, Integer> o2)
@@ -328,12 +327,14 @@ public class Main {
             }
         });
 
-        Map<Integer, Integer> sortedMap = new LinkedHashMap<Integer, Integer>();
+        //Map<Integer, Integer> sortedMap = new LinkedHashMap<Integer, Integer>();
+//
+        //for (Map.Entry<Integer, Integer> entry : list)
+        //{
+        //    sortedMap.put(entry.getKey(), entry.getValue());
+        //}   return sortedMap;
 
-        for (Map.Entry<Integer, Integer> entry : list)
-        {
-            sortedMap.put(entry.getKey(), entry.getValue());
-        }   return sortedMap;
+        return list;
     }
 
 
@@ -366,7 +367,7 @@ public class Main {
         Map<Integer,List<Position<Integer,Integer>>> chainedCells=new HashMap<>();
         findPartitions(deepCopyIntMatrix(matrix),chainedCells, countHash);
 
-        Map<Integer,Integer> sortedMap;
+        List<Map.Entry<Integer,Integer>> sortedMap;
 
         // When we are going only one level in the board
         if(depth==cutOffHeight && cutOffHeight==1)
@@ -389,7 +390,7 @@ public class Main {
             //System.out.println("MAX");
             Double v = -Double.MAX_VALUE;
 
-            for (int key : sortedMap.keySet()) {
+            for (Map.Entry<Integer,Integer> key : sortedMap) {
 
                 if(depth==cutOffHeight)
                 {
@@ -399,18 +400,18 @@ public class Main {
                 }
 
                 int[][] newmatrix = deepCopyIntMatrix(matrix);
-                removeIsland(newmatrix, key, chainedCells.get(key));
+                removeIsland(newmatrix, key.getKey(), chainedCells.get(key.getKey()));
 
                 // Receiving the Minimized score from the MIN agent
-                v = Math.max(v, minmax(newmatrix, depth + 1, false, cutOffHeight, alpha, beta, score + Math.pow(countHash.get(key), 2)));
+                v = Math.max(v, minmax(newmatrix, depth + 1, false, cutOffHeight, alpha, beta, score + Math.pow(countHash.get(key.getKey()), 2)));
 
 
                 if (bestScore < v && depth==1) {
                     bestScore = v;
-                    maxRow=key/n;
-                    maxCol=key%n;
+                    maxRow=key.getKey()/n;
+                    maxCol=key.getKey()%n;
                     bestState=deepCopyIntMatrix(newmatrix);
-                    movescore=countHash.get(key);
+                    movescore=countHash.get(key.getKey());
                     //System.out.println("Best Score "+bestScore);
                     //System.out.println("Score: "+Math.pow(countHash.get(key),2));
                 }
@@ -431,7 +432,7 @@ public class Main {
             Double v=Double.MAX_VALUE;
             //System.out.println("MIN");
             
-            for (int key : sortedMap.keySet()) {
+            for (Map.Entry<Integer,Integer> key : sortedMap) {
 
                 if(depth==cutOffHeight)                                 
                 {
@@ -441,10 +442,10 @@ public class Main {
                 }
 
                 int[][] newmatrix = deepCopyIntMatrix(matrix);
-                removeIsland(newmatrix, key, chainedCells.get(key));
+                removeIsland(newmatrix, key.getKey(), chainedCells.get(key.getKey()));
 
                 // Receiving MAX score value which needs to be minimized
-                v=Math.min(v,minmax( newmatrix,depth+1, true, cutOffHeight,alpha,beta,score - Math.pow(countHash.get(key),2)));
+                v=Math.min(v,minmax( newmatrix,depth+1, true, cutOffHeight,alpha,beta,score - Math.pow(countHash.get(key.getKey()),2)));
 
                 // Update beta with minimum score possible by MIN agents move
                 beta = Math.min(beta, v);
@@ -467,25 +468,42 @@ public class Main {
         Map<Integer,Integer> countHash=new HashMap<>();
         Map<Integer,List<Position<Integer,Integer>>> chainedCells=new HashMap<>();
         findPartitions(deepCopyIntMatrix(matrix),chainedCells, countHash);
-
+        int cutOffHeight=3;
         int noOfIslands=countHash.size();
 
         System.out.println("No of Islands: "+noOfIslands);
-        int cutOffHeight=3;
-        if(noOfIslands>150)
+
+        // Bell curve
+        if(noOfIslands>(2*n))
             cutOffHeight=3;
-        else if(noOfIslands<100)
+        else if(noOfIslands<(2*n) && noOfIslands>(n/2) && timeLeft>60)
             cutOffHeight=5;
         else
-            cutOffHeight=4;
+            cutOffHeight=3;
 
-        if(timeLeft<50)
+        // Max depth safety
+        if(noOfIslands>150)
             cutOffHeight=2;
-        if(timeLeft<20)
+        else if(noOfIslands<50 && noOfIslands>20) {
+            if(cutOffHeight>5)
+                cutOffHeight = 5;
+        }
+        else if(noOfIslands<=20 && noOfIslands>10)
+            cutOffHeight=7;
+        else if(noOfIslands<=10 && noOfIslands>5)
+            cutOffHeight=9;
+        else if(noOfIslands<=5)
+            cutOffHeight=1;
+
+        if(timeLeft<=60 && timeLeft>20)
+            cutOffHeight=3;
+        if(timeLeft<=20 && timeLeft>10)
+            cutOffHeight=2;
+        if(timeLeft<=10)
             cutOffHeight=1;
 
         System.out.println("CutoffHeight: "+cutOffHeight);
-        return 5;
+        return cutOffHeight;
 
     }
 
