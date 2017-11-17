@@ -1,9 +1,3 @@
-package com.company;
-
-
-
-import org.omg.CORBA.INTERNAL;
-
 import java.io.*;
 import java.util.*;
 
@@ -109,45 +103,15 @@ public class Main {
         }
     }
 
-    public static void writeToScore(int score){
-
-         try {
-             PrintWriter bw = new PrintWriter("score.txt","UTF-8");
-
-             bw.write(""+score+"");
-             bw.println();
-             bw.close();
-
-         }catch (Exception ex)
-         {
-             ex.printStackTrace();
-         }
-
-    }
-
-    public static void printMatrix(int[][] matrix){
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (matrix[i][j] == -1)
-                    System.out.print("*");
-                else if(matrix[i][j] == -2)
-                    System.out.print("#");
-                else if(matrix[i][j] == -3)
-                    System.out.print("&");
-                else
-                    System.out.print(matrix[i][j]);
-            }
-            System.out.println();
-        }
-
-        System.out.println();
-    }
-
-
     public static int[][] deepCopyIntMatrix(int[][] input) {
+
+        /*
+        * This function is used in order to pass the copy of matrix during DFS operation of MINMAX algorithm
+        */
+
         if (input == null)
             return null;
+
         int[][] result = new int[input.length][];
         for (int r = 0; r < input.length; r++) {
             result[r] = input[r].clone();
@@ -155,13 +119,17 @@ public class Main {
         return result;
     }
 
-    public static int hashFunc(int row,int col)
-    {
+    public static int hashFunc(int row,int col){
+        /*
+        * Hashing the entries in the 2-D matrix
+        */
         return (row*n)+col;
     }
 
     public static void hashLocation(int row,int col, Map<Integer,Integer> visitedHash){
-
+        /*
+        * Hash helper code for find_islands code
+        */
         visitedHash.put(hashFunc(row,col),1);
     }
 
@@ -171,6 +139,11 @@ public class Main {
     }
 
     public static void hashChainedCells(int key,int row, int col,Map<Integer,List<Position<Integer,Integer>>> chainedCells) {
+
+        /*
+        * Optimization technique to improve the access to the locations grouped based on Islands in a matrix
+        * */
+
         if(!chainedCells.containsKey(key)){
             chainedCells.put(key,new LinkedList<Position<Integer,Integer>>());
         }
@@ -182,6 +155,13 @@ public class Main {
     }
 
     public static void removeIsland(int[][] matrix, int key,List<Position<Integer,Integer>> islandPositions){
+
+        /*
+        *  One of the most crucial steps to this program
+        *  This function identifies all the locations part of the given IsLand using ChainedCell
+        *  Removes the locations from the board
+        *  Applies the gravity over the modified board and replaces the empty locations with '-1' => '*'
+        * */
 
         Map<Integer,Integer> maxrow=new HashMap<>();
 
@@ -220,15 +200,19 @@ public class Main {
         }
     }
 
+
     public static int findIslands(int[][] matrix,int val,Map<Integer,List<Position<Integer,Integer>>> chainedCells){
+
+        /*
+        * Run after every new board is generated to find the number of Islands available in it
+        * The size and location of the IsLand is crucial in improving the MIN-MAX (game playing) algorithm
+        * */
+
 
         // Count of number of elements in the island
         int count=0;
         Position<Integer,Integer> maincell=queue.peek();
         int hashvalue=hashFunc(maincell.row,maincell.col);
-
-
-        //int[][] tempMat=deepCopyIntMatrix(matrix);
 
         matrix[maincell.row][maincell.col]=-1;
 
@@ -293,6 +277,8 @@ public class Main {
 
     public static void findPartitions(int[][] matrix,Map<Integer,List<Position<Integer,Integer>>> chainedCells,Map<Integer,Integer> countHash){
 
+        // This is the coordinating function for the findIslands proc
+
         Map<Integer,Integer> visitedHash=new HashMap<>();
         for(int i=0;i<n;i++){
             for(int j=0;j<n;j++)
@@ -307,10 +293,11 @@ public class Main {
                 }
             }
         }
+
     }
 
-    private static List<Map.Entry<Integer, Integer>> sortHashMap(Map<Integer, Integer> unsortMap, final boolean sortOrder)
-    {
+    private static List<Map.Entry<Integer, Integer>> sortHashMap(Map<Integer, Integer> unsortMap, final boolean sortOrder) {
+
         List<Map.Entry<Integer, Integer>> list = new LinkedList<Map.Entry<Integer, Integer>>(unsortMap.entrySet());
 
         Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>() {
@@ -327,20 +314,16 @@ public class Main {
             }
         });
 
-        //Map<Integer, Integer> sortedMap = new LinkedHashMap<Integer, Integer>();
-//
-        //for (Map.Entry<Integer, Integer> entry : list)
-        //{
-        //    sortedMap.put(entry.getKey(), entry.getValue());
-        //}   return sortedMap;
-
         return list;
     }
 
+    // This is only used when depth==1
+    public static double findMaxMap(Map<Integer,Integer> countHash,Map<Integer,List<Position<Integer,Integer>>> chainedCells,int[][] newMatrix) {
+        /*
+        * When the depth is equal to one we are just having the maximizing step in the Min-Max algorithm
+        * We just have to find the Island with the maximum step and remove it from the 2D - Matrix
+        * */
 
-    // THis is only used when depth==1
-    public static double findMaxMap(Map<Integer,Integer> countHash,Map<Integer,List<Position<Integer,Integer>>> chainedCells,int[][] newMatrix)
-    {
         int maxkey=0,value=0;
 
         for(Map.Entry<Integer,Integer> entry: countHash.entrySet())
@@ -360,9 +343,12 @@ public class Main {
         return value;
     }
 
-    public static double minmax(int[][] matrix,int depth,boolean isMax,int cutOffHeight,Double alpha,Double beta,Double score)
-    {
-        call++;
+    public static double minmax(int[][] matrix,int depth,boolean isMax,int cutOffHeight,Double alpha,Double beta,Double score) {
+        /*
+        *  This the main MIN MAX function which performs recursion
+        *  We can control the depth of the function based on whether we are trying to maximize our score or minimizing the opponents score
+        * */
+
         Map<Integer,Integer> countHash=new HashMap<>();
         Map<Integer,List<Position<Integer,Integer>>> chainedCells=new HashMap<>();
         findPartitions(deepCopyIntMatrix(matrix),chainedCells, countHash);
@@ -385,9 +371,10 @@ public class Main {
 
         if(isMax) {
 
+            // Maximizing Agent
+
             sortedMap = sortHashMap(countHash,isMax);
 
-            //System.out.println("MAX");
             Double v = -Double.MAX_VALUE;
 
             for (Map.Entry<Integer,Integer> key : sortedMap) {
@@ -395,14 +382,13 @@ public class Main {
                 if(depth==cutOffHeight)
                 {
                     double maxvalue=Collections.max(countHash.values());
-                    //call+=countHash.size();
                     return score+Math.pow(maxvalue,2);
                 }
 
                 int[][] newmatrix = deepCopyIntMatrix(matrix);
                 removeIsland(newmatrix, key.getKey(), chainedCells.get(key.getKey()));
 
-                // Receiving the Minimized score from the MIN agent
+                // Receiving the Minimized score from the MIN agent to be Maximized
                 v = Math.max(v, minmax(newmatrix, depth + 1, false, cutOffHeight, alpha, beta, score + Math.pow(countHash.get(key.getKey()), 2)));
 
 
@@ -412,8 +398,6 @@ public class Main {
                     maxCol=key.getKey()%n;
                     bestState=deepCopyIntMatrix(newmatrix);
                     movescore=countHash.get(key.getKey());
-                    //System.out.println("Best Score "+bestScore);
-                    //System.out.println("Score: "+Math.pow(countHash.get(key),2));
                 }
 
                 // Pruning step
@@ -428,16 +412,16 @@ public class Main {
         }
         else
         {
+            // Minimizing Agent
+
             sortedMap = sortHashMap(countHash,isMax);
             Double v=Double.MAX_VALUE;
-            //System.out.println("MIN");
-            
+
             for (Map.Entry<Integer,Integer> key : sortedMap) {
 
-                if(depth==cutOffHeight)                                 
+                if(depth==cutOffHeight)
                 {
                     double maxvalue=Collections.max(countHash.values());
-                    //call+=countHash.size();
                     return score-Math.pow(maxvalue,2);
                 }
 
@@ -463,20 +447,33 @@ public class Main {
 
     }
 
-    public static int calculateCutOffHeight()
-    {
+    public static int calculateCutOffHeight(){
+        /*
+        *  This is the function which decides what depth the Min-Max agent should be run for every board
+        *  Total time for each player is only 5 mins
+        *  Hence running Min-Max for depth more than 6 would lead to timeout and disqualification
+        *  The function decided this depth based on
+        *       Time into the game
+        *       Time left for the player
+        *       No. of Islands left out
+        *       Total size of the board
+        *  This is totally configurable based on the situation
+        *
+        *  Currently it has been modified to simulate a bell curve for the moves which seemed to be the most
+        *  effective with another agent
+        *
+        * */
         Map<Integer,Integer> countHash=new HashMap<>();
         Map<Integer,List<Position<Integer,Integer>>> chainedCells=new HashMap<>();
         findPartitions(deepCopyIntMatrix(matrix),chainedCells, countHash);
-        int cutOffHeight=3;
-        int noOfIslands=countHash.size();
 
-        System.out.println("No of Islands: "+noOfIslands);
+        int noOfIslands=countHash.size();
+        int cutOffHeight=3;
 
         // Bell curve
         if(noOfIslands>(2*n))
             cutOffHeight=3;
-        else if(noOfIslands<(2*n) && noOfIslands>(n/2) && timeLeft>60)
+        else if(noOfIslands<(2*n) && noOfIslands>(n/2) && timeLeft>50)
             cutOffHeight=5;
         else
             cutOffHeight=3;
@@ -495,41 +492,33 @@ public class Main {
         else if(noOfIslands<=5)
             cutOffHeight=1;
 
-        if(timeLeft<=60 && timeLeft>20)
+        if(timeLeft<=50 && timeLeft>20)
             cutOffHeight=3;
         if(timeLeft<=20 && timeLeft>10)
             cutOffHeight=2;
         if(timeLeft<=10)
             cutOffHeight=1;
 
-        System.out.println("CutoffHeight: "+cutOffHeight);
         return cutOffHeight;
-
     }
 
     public static void main(String[] args) {
 
-        long startTime = System.currentTimeMillis();
+        // Read the matrix input from file
+        // They will also be providing the time left
         readMatrixFile(inputFilename);
-        int cutOffHeight=1;
 
-        cutOffHeight=calculateCutOffHeight();
+        // Calculate the cut-off height for the Min-Max
+        int cutOffHeight=calculateCutOffHeight();
         minmax(matrix,1,true,cutOffHeight,-Double.MAX_VALUE,Double.MAX_VALUE,0.0);
 
+        // This is just the representation to point out a location in the matrix where the move was made
+        // Column - represented using Alphabets [A-Z]
+        // Rows - numbers
         char columnAlphabet=(char)(65+maxCol);
         String location=columnAlphabet+""+(maxRow+1);
 
-        //System.out.println("Row "+maxRow+" Col "+maxCol);
-        //System.out.println(location);
-        //printMatrix(bestState);
-        //System.out.println(call+" "+prune);
-
+        // Write the matrix after the move to the file
         writeMatrixFile(bestState,location);
-        writeToScore(movescore);
-
-        long endTime = System.currentTimeMillis();
-        double time=endTime-startTime;
-
-        System.out.println("That took " + time/1000 + " seconds");
     }
 }
