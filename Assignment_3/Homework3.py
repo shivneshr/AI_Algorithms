@@ -1,8 +1,23 @@
 import re
+import time
+import sys
 
+
+# Main KB to use to prove the statements
 KB = []
+
+# Set of queries to ASK
 ASK = []
-visited={}
+
+# Visited sentence to avoid infinite loop
+visited = {}
+
+# Hash all the predicate location to retrieve it fast
+hashPredLoc={}
+
+start=0
+
+num=0
 
 def readSentences():
 	'''
@@ -12,56 +27,153 @@ def readSentences():
 	global ASK
 	global KB
 
-    # File from which we are reading the KB
+	# File from which we are reading the KB
 	file = open("input.txt", "r")
 
-    # No. of queries asked for the KB
+	sortKB=[]
+
+	# No. of queries asked for the KB
 	noOfQuery = int(file.readline())
 
-    # Read the queries
+	# Read the queries
 	for i in range(noOfQuery):
 		line = file.readline().replace('\n', '').replace(' ', '')
 		predicates = line.split('|')
 		ASK.append(predicates)
 
-    # No. of sentences present in the KB
+	# No. of sentences present in the KB
 	noOfSentences = int(file.readline())
 
-    # Read the sentences
+	# Read the sentences
 	for i in range(noOfSentences):
 		line = file.readline().replace('\n', '').replace(' ', '')
-		line=standardize(line,i)
-		predicates = line.split('|')
-		KB.append(predicates)
+		predicates,cnt = standardize(line.split('|'))
+		sortKB.append([cnt,predicates])
 
+	sorted_KB = sorted(sortKB, key=lambda x: x[0])
 
-def standardize(sentence,num):
-    
+	for pair in sorted_KB:
+		KB.append(pair[1])
+
+def standardize(predicates):
 	'''
 	:param sentence: KB sentence to be standardized
 	:param num: literal used for standardizing
 	:return: standardized sentence to be added to KB
 	'''
 
-	predicates = sentence.split('|')
-	argDictionary={}
+	global num
+	argDictionary = {}
 
-    # Get the list of variables in the sentence
-	for index,predicate in enumerate(predicates):
-		arguments= predicate.split('(')[1].replace(')','').split(',')
+	if len(predicates)==0:
+		return [],0
+
+	# Get the list of variables in the sentence
+	for index, predicate in enumerate(predicates):
+		arguments = predicate.split('(')[1].replace(')', '').split(',')
 		for arg in arguments:
-			if arg not in argDictionary and len(arg)==1:
-				argDictionary[arg]=arg+str(num)
+			if arg not in argDictionary and isVar(arg):
+				argDictionary[arg] = arg[0] + str(num)
+				num+=1
 
-    # Replace the new variable names in the sentences
-	for key,value in argDictionary.items():
-		sentence=sentence.replace('('+key+',','('+argDictionary[key]+',')\
-						.replace(','+key+')',','+argDictionary[key]+')')\
-						.replace('('+key+')','('+argDictionary[key]+')')\
-						.replace(','+key+',',','+argDictionary[key]+',')
+	sentence='|'.join(predicates)
 
-	return sentence
+	# Replace the new variable names in the sentences
+	for key, value in argDictionary.items():
+		sentence = sentence.replace('(' + key + ',', '(' + argDictionary[key] + ',') \
+			.replace(',' + key + ')', ',' + argDictionary[key] + ')') \
+			.replace('(' + key + ')', '(' + argDictionary[key] + ')') \
+			.replace(',' + key + ',', ',' + argDictionary[key] + ',')
 
+	return sentence.split('|'),len(argDictionary)
+
+
+def hashStandard(predicates):
+
+	if len(predicates)==0:
+		return []
+
+	argDictionary = {}
+	cnt=0
+
+	# Get the list of variables in the sentence
+	for index, predicate in enumerate(predicates):
+		arguments = predicate.split('(')[1].replace(')', '').split(',')
+		for arg in arguments:
+			if arg not in argDictionary and isVar(arg):
+				argDictionary[arg] = 'v' + str(cnt)
+				cnt+=1
+
+	sentence = '|'.join(predicates)
+
+	# Replace the new variable names in the sentences
+	for key, value in argDictionary.items():
+		sentence = sentence.replace('(' + key + ',', '(' + argDictionary[key] + ',') \
+			.replace(',' + key + ')', ',' + argDictionary[key] + ')') \
+			.replace('(' + key + ')', '(' + argDictionary[key] + ')') \
+			.replace(',' + key + ',', ',' + argDictionary[key] + ',')
+
+	return sentence.split('|')
+
+
+# -------------------- Helper Methods --------------------------
+
+def negatePredicate(predicate):
+	if predicate[0] == '~':
+		return predicate[1:]
+	else:
+		return '~' + predicate
+
+def isVar(var):
+	return var[0].islower()
+
+def isLiteral(var):
+	return not var[0].islower()
+
+def isTautology(sentence):
+
+	for predicate in sentence:
+		if negatePredicate(predicate) in sentence:
+			return True
+	return False
+
+# -------------------- Helper Methods End ----------------------
+
+
+# -------------------- Resolution ------------------------------
+
+def resolve(sentence1, sentence2, predicate):
+	'''
+
+	:param sentence1: sentence 1
+	:param sentence2: sentence 2
+	:return: resolved sentence
+	'''
+
+	sentence1.remove(predicate)
+	sentence2.remove(negatePredicate(predicate))
+
+	return sentence1 + sentence2
+
+# -------------------- Resolution End ---------------------------
+
+
+# -------------------- Unify Helper -----------------------------
+
+def unifyHelper(map, sentences):
+	'''
+	:param map:         dictionary caontaining the mapping for variables and literals
+	:param sentence:    sentence on which the unification needs to be performed
+	:return:            returns a unified sentence
+	'''
+	for i, sentence in enumerate(sentences):
+		for x, y in map.items():
+			sentences[i] = sentences[i].replace('(' + x + ',', '(' + y + ',') \
+				.replace(',' + x + ')', ',' + y + ')') \
+				.replace('(' + x + ')', '(' + y + ')') \
+				.replace(',' + x + ',', ',' + y + ',')
+
+	return sentences
 
 def getRegex(predicate):
 	'''
@@ -74,186 +186,232 @@ def getRegex(predicate):
         The output is to be searched in the Rule
 	'''
 
-    
 	tempstring = predicate.split('(')
-    # getting the predicate name
+	# getting the predicate name
 	predicatename = tempstring[0]
 	template = ''
 
-    # Iterating over the varibales in the predicate
+	# Iterating over the varibales in the predicate
 	for i in range(len(tempstring[1].split(',')) - 1):
 		template += '(\s*\w*\s*)' + ','
 
 	template += '(\s*\w*\s*)'
 
-    # Negating the regex because we need to search for the negation
+	# Negating the regex because we need to search for the negation
 	if ('~' in predicatename):
 		template = predicatename[1:] + '\(' + template
 	else:
 		template = '~' + predicatename + '\(' + template
 
-	return template + '\)', tempstring[1].replace(')', '').split(','), len(tempstring[1])
+	return template + '\)', tempstring[1].replace(')', '').split(',')
 
+def unify_variable(var1,var2,theta):
 
-def resolve(sentence1, sentence2):
-	'''
+	if var1 in theta:
+		return unify_internal(theta[var1], var2, theta)
+	elif var2 in theta:
+		return unify_internal(var1, theta[var2], theta)
+	else:
+		theta[var1] = var2
+	return theta
 
-	:param sentence1: sentence 1
-	:param sentence2: sentence 2
-	:return: resolved sentence
-	'''
+def unify_internal(x,y,theta):
 
-	for predicate in sentence1:
+	if theta is None:
+		return None
+	elif type(x) == str and type(y)==str and x == y:
+		return theta
+	elif type(x) == str and type(y) == str and isVar(x):
+		return unify_variable(x,y,theta)
+	elif type(x) == str and type(y) == str and isVar(y):
+		return unify_variable(y,x,theta)
+	elif type(x)==list and type(y)==list and len(x) > 0 and len(y) > 0:
+		return unify_internal(x[1:],y[1:],unify_internal(x[0],y[0],theta))
+	elif type(x) == list and type(y) == list and len(x) == 0 and len(y) == 0:
+		return theta
+	else:
+		return None
 
-		if '~' in predicate:
-			if predicate[1:] in sentence2:
-				sentence2.remove(predicate[1:])
-				sentence1.remove(predicate)
+def goDeep(key,theta):
+
+	if key in theta:
+		if isVar(theta[key]):
+			return goDeep(theta[key],theta)
 		else:
-			if '~' + predicate in sentence2:
-				sentence2.remove('~' + predicate)
-				sentence1.remove(predicate)
+			return theta[key]
+	else:
+		return key
 
-	return sentence1 + sentence2
+def generateNewDict(theta,modified):
 
+	for key in theta:
+		modified[key]=goDeep(key,theta)
 
-def identifyVariable(x, y):
-    
-    '''
-    This function is used to identify which is the variable and which is a literal
-    '''
+	return modified
 
-	if not x[0].islower() and not y[0].islower() and x != y:
-		# when both the predicates have	literals in the location and are different
-		return x, y, False, False
-	elif not x[0].islower() and not y[0].islower() and x == y:
-		# when both the predicates have literals in the location and are same
-		return x, y, True, True
+# -------------------- Unify Helper End -------------------------
 
-	if x[0].islower():
-		return x, y, True, True
-	elif y[0].islower():
-		return y, x, True, True
+# -------------------- Unification Logic ------------------------
 
-
-def unifyHelper(map, sentence):
-    
-    '''
-    :param map:         dictionary caontaining the mapping for variables and literals
-	:param sentence:    sentence on which the unification needs to be performed
-	:return:            returns a unified sentence
-    '''
-	for i in range(len(sentence)):
-		for x, y in map.items():
-			sentence[i] = sentence[i].replace(x, y)
-
-	return sentence
-
-
-def unification(sentence1, sentence2):
-    
+def resolution(sentence1, sentence2):
 	'''
 	:param sentence1: List of predicates sentence 1
 	:param sentence2: List of predicates in sentence 2
-	:return: Calculate possible unification and score of unification
+	:return: Calculate possible unifications and return set of resolved sentences
 	'''
 
-	match = []
-	unify = {}
-	flag=False
-	for str1 in sentence1:
+	resolvedSentences = []
 
-		regex, variables1, num = getRegex(str1)
-		functionmatch = re.compile(regex)
+	# str1 is the current sentence
+	for predicate1 in sentence1:
 
-		matchedPredicate = list(filter(functionmatch.match, sentence2))
+		# matching the predicates
+		regex, arguments1 = getRegex(predicate1)
+		functionMatch = re.compile(regex)
 
-		if (len(matchedPredicate) != 0):
-			flag=True
-			variables2 = matchedPredicate[0].split('(')[1].replace(')', '').split(',')
+		# have to improve this regex matching - use of hash maps
+		# extracting the arguments of the sentence 1
+		matchedPredicate = list(filter(functionMatch.match, sentence2))
 
-			for x, y in zip(variables1, variables2):
+		for predicate2 in matchedPredicate:
 
-				x, y, add, valid = identifyVariable(x, y)
+			unify={}
+			# we have to store this variable separately for each sentence - hash map
+			# Extracting the arguments of the sentence 2
+			arguments2 = predicate2.split('(')[1].replace(')', '').split(',')
 
-				if (x not in unify) and valid and add:
-					unify[x] = y
-				elif not valid:
-					flag=False
+			unify_intermediate = unify_internal(arguments1, arguments2, {})
 
-			match += matchedPredicate
+			if unify_intermediate:
+				unify = generateNewDict(unify_intermediate, {})
 
-    # unify contains the mapping of the variables and the corresponding values
-    # this was calculated based on the values which were passed
+			if unify_intermediate is not None:
+				result1 = unifyHelper(unify, sentence1[:])
+				result2 = unifyHelper(unify, sentence2[:])
+				predicate = unifyHelper(unify, [predicate1])
 
-	unifyHelper(unify, sentence2)
-	unifyHelper(unify, sentence1)
+				result=resolve(result1, result2, predicate[0])
 
-	return flag,resolve(sentence2, sentence1)
+				if not isTautology(result):
+					result, argnum = standardize(result)
+					resolvedSentences.append(result)
+
+	return resolvedSentences
+
+# -------------------- Unification Logic End --------------------
+
+
+def convertToTemplate(predicate):
+
+	ls=predicate.split('(')
+	name=ls[0]
+	args=ls[1].replace(')','').split(',')
+	construct=''
+	for arg in args:
+		if isVar(arg):
+			construct+='v,'
+		else:
+			construct+=arg+','
+	return name+'('+construct[:len(construct)-1]+')'
+
+def removeduplicates(output):
+
+	hashdup={}
+
+	result=[]
+
+	for predicate in output:
+
+		temp = convertToTemplate(predicate)
+
+		if temp not in hashdup:
+			result.append(predicate)
+			hashdup[temp]=1
+
+	return result
 
 
 def proveQuery(query):
 
+	#global height
 	'''
 	:param query: The query to be proved
 	:return: returns if the query is True/False
 	'''
-    key=0
-	for rule in KB:
 
+	end = time.time()
+	if (end - start) > 15:
+		return
+
+	for rule in KB:
 		# pass the query by reference always
 		# keep the query variable local never change it
 
-		unified,temp=unification(query[:],rule[:])
-        if unified:
-		    key = hash(tuple(temp))
+		resolvedSentences = resolution(rule[:],query[:])
 
-		if unified and (key not in visited):
+		for output in resolvedSentences:
 
-			#print(rule,query)
-			# the next state to be passed
-			nextQuery=temp[:]
+			print('unify:',query,rule)
 
-			# Adding the sentence to dictionary
-			visited[key]=1
+			#print('Resolved',output)
 
-			#print(nextQuery)
+			temp = removeduplicates(output[:])
+			print('Resolved',temp)
 
-			if len(nextQuery) == 0:
-				return True
-			else:
-				if(proveQuery(nextQuery[:])):
+			hashtemp=temp[:]
+			hashtemp.sort()
+			hashtemp=hashStandard(hashtemp)
+			#print('hash:', temp)
+
+			key = hash(tuple(hashtemp))
+
+			if key not in visited:
+				visited[key] = 1
+
+				# print(rule,query)
+				# the next state to be passed
+				nextQuery = temp
+				#print('resolved:', nextQuery)
+
+				if len(nextQuery) == 0:
 					return True
-
+				else:
+					res=proveQuery(nextQuery[:])
+					if (res):
+						return True
 
 def ASK_Queries():
+
+	global start,height
+
+	sys.setrecursionlimit(100000)
+
+	# read the file input
 	readSentences()
 
+	fileObject = open('output.txt', 'w')
 	for query in ASK:
 
-		for index in range(len(query)):
+		#print(query)
 
-			if '~' in query[index]:
-				query[index]=query[index][1:]
-			else:
-				query[index]='~'+query[index]
+		for index in range(len(query)):
+			query[index] = negatePredicate(query[index])
+
+		KB.append(query)
 
 		visited.clear()
-		visited[hash(tuple(query))]=1
-
-		fileObject = open('output.txt', 'a')
+		visited[hash(tuple(query))] = 1
+		height=0
+		start = time.time()
 
 		if proveQuery(query):
 			fileObject.write('TRUE\n')
 		else:
 			fileObject.write('FALSE\n')
-		fileObject.close()
+
+		KB.remove(query)
+
+	fileObject.close()
 
 
 ASK_Queries()
-
-
-
-
-
-
