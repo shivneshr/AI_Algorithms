@@ -12,12 +12,12 @@ ASK = []
 # Visited sentence to avoid infinite loop
 visited = {}
 
-# Hash all the predicate location to retrieve it fast
-hashPredLoc={}
-
+# Stores the start tieme of the query
 start=0
 
+# Stores the universal number used for standardization
 num=0
+
 
 def readSentences():
 	'''
@@ -54,6 +54,7 @@ def readSentences():
 
 	for pair in sorted_KB:
 		KB.append(pair[1])
+
 
 def standardize(predicates):
 	'''
@@ -116,16 +117,16 @@ def hashStandard(predicates):
 	return sentence.split('|')
 
 
-# -------------------- Helper Methods --------------------------
-
-def negatePredicate(predicate):
-	if predicate[0] == '~':
-		return predicate[1:]
-	else:
-		return '~' + predicate
+# -------------------- Helper Methods -------------------------
 
 def isVar(var):
 	return var[0].islower()
+
+def negatePredicate(predicate):
+    if predicate[0] == '~':
+		return predicate[1:]
+	else:
+		return '~' + predicate
 
 def isLiteral(var):
 	return not var[0].islower()
@@ -136,6 +137,34 @@ def isTautology(sentence):
 		if negatePredicate(predicate) in sentence:
 			return True
 	return False
+
+def convertToTemplate(predicate):
+    
+	ls=predicate.split('(')
+	name=ls[0]
+	args=ls[1].replace(')','').split(',')
+	construct=''
+	for arg in args:
+		if isVar(arg):
+			construct+='v,'
+		else:
+			construct+=arg+','
+	return name+'('+construct[:len(construct)-1]+')'
+
+def removeduplicates(output):
+
+	hashdup={}
+	result=[]
+
+	for predicate in output:
+
+		temp = convertToTemplate(predicate)
+
+		if temp not in hashdup:
+			result.append(predicate)
+			hashdup[temp]=1
+
+	return result
 
 # -------------------- Helper Methods End ----------------------
 
@@ -301,44 +330,13 @@ def resolution(sentence1, sentence2):
 # -------------------- Unification Logic End --------------------
 
 
-def convertToTemplate(predicate):
-
-	ls=predicate.split('(')
-	name=ls[0]
-	args=ls[1].replace(')','').split(',')
-	construct=''
-	for arg in args:
-		if isVar(arg):
-			construct+='v,'
-		else:
-			construct+=arg+','
-	return name+'('+construct[:len(construct)-1]+')'
-
-def removeduplicates(output):
-
-	hashdup={}
-
-	result=[]
-
-	for predicate in output:
-
-		temp = convertToTemplate(predicate)
-
-		if temp not in hashdup:
-			result.append(predicate)
-			hashdup[temp]=1
-
-	return result
-
-
 def proveQuery(query):
-
-	#global height
 	'''
 	:param query: The query to be proved
 	:return: returns if the query is True/False
 	'''
 
+	# If it exceeds 15 secs we assume the query is not supported by KB
 	end = time.time()
 	if (end - start) > 15:
 		return
@@ -351,27 +349,17 @@ def proveQuery(query):
 
 		for output in resolvedSentences:
 
-			print('unify:',query,rule)
-
-			#print('Resolved',output)
-
 			temp = removeduplicates(output[:])
-			print('Resolved',temp)
-
 			hashtemp=temp[:]
 			hashtemp.sort()
 			hashtemp=hashStandard(hashtemp)
-			#print('hash:', temp)
 
 			key = hash(tuple(hashtemp))
 
 			if key not in visited:
 				visited[key] = 1
 
-				# print(rule,query)
-				# the next state to be passed
 				nextQuery = temp
-				#print('resolved:', nextQuery)
 
 				if len(nextQuery) == 0:
 					return True
@@ -381,37 +369,42 @@ def proveQuery(query):
 						return True
 
 def ASK_Queries():
+    	
+	'''
+	This functions runs the set of given queries to get the inference for each
+	of them.
+	'''
 
-	global start,height
+	global start
 
-	sys.setrecursionlimit(100000)
+	sys.setrecursionlimit(10000)
 
-	# read the file input
+	# Read the file input
 	readSentences()
 
 	fileObject = open('output.txt', 'w')
 	for query in ASK:
-
-		#print(query)
-
 		for index in range(len(query)):
 			query[index] = negatePredicate(query[index])
 
+		# Adding the negated query to the KB before starting
 		KB.append(query)
 
+		# This is the hashMap to make sure we are not visiting the same state
 		visited.clear()
 		visited[hash(tuple(query))] = 1
-		height=0
 		start = time.time()
 
+		# Calling the prove Query to get the inference 
 		if proveQuery(query):
 			fileObject.write('TRUE\n')
 		else:
 			fileObject.write('FALSE\n')
 
+		# Removing the initially added query from KB
 		KB.remove(query)
 
 	fileObject.close()
 
-
+# Ask the quries to the Knowledge Base
 ASK_Queries()
