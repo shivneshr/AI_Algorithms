@@ -3,6 +3,8 @@ import random
 import datetime
 import time
 
+
+# Class to track the state of matrix in BFS search
 class State:
 
 	def __init__(self, cnt=None, n=None, sal=None,rowranges_t=None, queenPosition_t=None):
@@ -28,7 +30,8 @@ class State:
 
 
 # BFS Queue
-
+# BFS Variables
+attackConfig=dict()
 BFSQueue = []
 
 # All these are varying
@@ -49,10 +52,7 @@ obstaclesj=dict()
 obstaclesDiag1=dict()
 obstaclesDiag2=dict()
 
-# BFS Variables
-attackConfig=dict()
-
-# SA Variables
+# Simulated Annealing Variables
 
 oldcount=0
 newcount=0
@@ -184,7 +184,6 @@ def removeQueenHashSA(i, j):
 	queenRow[i].remove(j)
 
 # calculate conflict DFS
-
 def calculateConflict(i1,j1,n):
 
 	# if no obstacles are there - obstacle checks reduce
@@ -826,12 +825,14 @@ def Main():
 		if(rangecount<sal):
 			printOutput(type,"FAIL", n)
 		else:
+			# Solving the problem using Depth First search appraoch
 			if type=="DFS":
 
 				if(MatrixDFS(n, sal,rowranges,rangecount)==False):
 					printOutput(type,"FAIL",n)
 				else:
 					printOutput(type,"OK",n)
+			# solving the problem using Breadth First search appraoch
 			elif type=="BFS":
 				if sal>0:
 					calculateAttackConfig(n)
@@ -843,6 +844,7 @@ def Main():
 						printOutput(type,"FAIL",n)
 				else:
 					printOutput("DFS", "OK", n)
+			# Solving the problem with Simulated Annealing appoach used for really large inputs
 			elif type=="SA":
 
 				global oldcount
